@@ -8,7 +8,7 @@ from logging.handlers import TimedRotatingFileHandler
 import numpy as np
 from picamera2 import Picamera2
 from picamera2.encoders import H264Encoder, Quality
-from picamera2.outputs import FileOutput
+from picamera2.outputs import PyavOutput
 from systemd.journal import JournalHandler
 
 # TODO: more resilient false positive detection
@@ -19,7 +19,7 @@ from systemd.journal import JournalHandler
 
 def remove_fluke_recordings():
     if motion_frames < 10:
-        filename = encoder.output.fileoutput
+        filename = encoder.output._output_name
         os.remove(filename)
         logger.info("Less than 10 motion frames, deleting Recording")
 
@@ -102,8 +102,8 @@ while True:
         mse = np.square(np.subtract(curr, prev)).mean()
         if mse > 1.75:
             if not encoding:
-                encoder.output = FileOutput(
-                    f"/home/solvrocam/Videos/{time.strftime('%d %m %H:%M:%S', time.localtime())}.h264"
+                encoder.output = PyavOutput(
+                    f"/home/solvrocam/Videos/{time.strftime('%d %m %H:%M:%S', time.localtime())}.mp4"
                 )
                 picam2.start_encoder(encoder, quality=Quality.VERY_HIGH)
                 encoding = True
