@@ -1,0 +1,23 @@
+[Unit]
+Description=Solvro Office Cam Motion Detection Service
+After=multi-user.target
+# If network access becomes necessary in the future, uncomment these:
+# After=network-online.target
+# Wants=network-online.target
+
+[Service]
+User=solvrocam
+Group=solvrocam
+
+WorkingDirectory=/home/solvrocam/hardware-solvro-bot-office-cam
+
+ExecStart=/home/solvrocam/.local/bin/uv run /home/solvrocam/hardware-solvro-bot-office-cam/motion_detect.py
+
+Restart=on-failure
+RestartSec=5s
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
