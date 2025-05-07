@@ -11,7 +11,7 @@ Group=solvrocam
 
 WorkingDirectory=/home/solvrocam/hardware-solvro-bot-office-cam
 
-ExecStart=/home/solvrocam/.local/bin/uv run /home/solvrocam/hardware-solvro-bot-office-cam/motion_detect.py
+ExecStart=/home/solvrocam/.local/bin/uv run /home/solvrocam/hardware-solvro-bot-office-cam/main.py
 
 Restart=on-failure
 RestartSec=5s
