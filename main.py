@@ -52,7 +52,7 @@ def ping():
 lsize = (640, 480)
 picam2 = Picamera2()
 video_config = picam2.create_video_configuration(
-    lores={"size": lsize, "format": "YUV420"},
+    main={"size": lsize, "format": "YUV420"},
     display=None,
     buffer_count=90,
     controls={"FrameRate": 30},
@@ -65,12 +65,12 @@ tracker = YOLOByteTracker()
 ping_time = 0
 
 while True:
-    frame = picam2.capture_buffer("lores")
+    frame = picam2.capture_array("main")
     result = tracker.track_person(frame)
     count = len(result.ids)
 
     if count > 0:
-        logger.info("People detected, count= {count}")
+        logger.info(f"People detected, count= {count}")
         if time.time() - ping_time > 60 or ping_time == 0:
             ping()
             ping_time = time.time()
