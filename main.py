@@ -49,13 +49,13 @@ def ping():
     pass
 
 
-lsize = (640, 480)
+size = (320, 320)
 picam2 = Picamera2()
 video_config = picam2.create_video_configuration(
-    main={"size": lsize, "format": "YUV420"},
+    main={"size": size, "format": "YUV420"},
     display=None,
-    buffer_count=90,
-    controls={"FrameRate": 30},
+    buffer_count=5,
+    controls={"FrameRate": 10},
 )
 
 picam2.configure(video_config)
