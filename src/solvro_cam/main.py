@@ -2,42 +2,21 @@ import datetime
 import logging
 import os
 import sys
-from logging.handlers import TimedRotatingFileHandler
 from urllib.parse import urljoin
 
 import cv2
 from dotenv import load_dotenv
 from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
 from requests import post
-from systemd.journal import JournalHandler  # pyright: ignore[reportMissingImports]
 
+from solvro_cam.logs import setup_logging
 from solvro_cam.person_trackers.yolo_bytetracker import YOLOByteTracker
 
 # TODO: break this file up into smaller modules
 
 # Configure logging
 logger = logging.getLogger(__name__)
-logger.propagate = False
-logger.setLevel(logging.DEBUG)
-
-if not os.path.isdir("/home/solvrocam/hardware-solvro-bot-office-cam/logs"):
-    os.mkdir("/home/solvrocam/hardware-solvro-bot-office-cam/logs")
-
-file_handler = TimedRotatingFileHandler(
-    "/home/solvrocam/hardware-solvro-bot-office-cam/logs/log",
-    when="D",
-    backupCount=7,
-)
-file_handler.setLevel(logging.DEBUG)
-file_handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-)
-logger.addHandler(file_handler)
-
-journal_handler = JournalHandler()
-journal_handler.setLevel(logging.INFO)
-journal_handler.setFormatter(logging.Formatter("%(levelname)s - %(message)s"))
-logger.addHandler(journal_handler)
+setup_logging(logger)
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -68,6 +47,7 @@ core_url = os.getenv("CORE_URL")
 
 @debounce
 def ping(count, image):
+    # TODO: finish integrating with core
     if core_url is not None:
         if count > 0:
             post(
@@ -103,12 +83,19 @@ picam2.start()
 tracker = YOLOByteTracker()
 
 
-while True:
-    frame = picam2.capture_array("main")
-    downscaled_frame = cv2.resize(frame, downscaled_size, interpolation=cv2.INTER_AREA)
-    result = tracker.track_person(downscaled_frame)
-    count = len(result.ids) if result.ids is not None else 0
-    ping(count, frame)
+def main():
+    while True:
+        frame = picam2.capture_array("main")
+        downscaled_frame = cv2.resize(
+            frame, downscaled_size, interpolation=cv2.INTER_AREA
+        )
+        result = tracker.track_person(downscaled_frame)
+        count = len(result.ids) if result.ids is not None else 0
+        ping(count, frame)
 
-    if count > 0:
-        logger.info(f"People detected, count= {count}")
+        if count > 0:
+            logger.info(f"People detected, count= {count}")
+
+
+if __name__ == "__main__":
+    main()
