@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "hardware-solvro-bot-office-cam"
 version = "0.1.0"
@@ -11,6 +15,10 @@ dependencies = [
     "simplejpeg>=1.8.2",
     "ultralytics>=8.3.128",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
 
 [tool.pyright]
 reportIgnoreCommentWithoutRule = false
