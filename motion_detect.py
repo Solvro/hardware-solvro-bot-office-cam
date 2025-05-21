@@ -11,11 +11,6 @@ from picamera2.encoders import H264Encoder, Quality
 from picamera2.outputs import PyavOutput
 from systemd.journal import JournalHandler
 
-# TODO: more resilient false positive detection
-# TODO: test out opencv
-# TODO: auto ssh
-# TODO: aliases
-
 
 def remove_fluke_recordings():
     if motion_frames < 10:
@@ -29,7 +24,7 @@ def handle_signal(signum, frame):
     logger.info(f"Received signal {signal.strsignal(signum)}, shutting down")
     if encoding:
         picam2.stop_encoder()
-        logger.info("Stopping Recording, motion_frames={motion_frames}")
+        logger.info(f"Stopping Recording, motion_frames={motion_frames}")
         remove_fluke_recordings()
     sys.exit(0)
 
