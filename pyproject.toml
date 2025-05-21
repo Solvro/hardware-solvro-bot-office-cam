@@ -7,12 +7,18 @@ requires-python = "~=3.11"
 dependencies = [
     "lap>=0.5.12",
     "ncnn>=1.0.20250503",
+    "python-dotenv>=1.1.0",
     "simplejpeg>=1.8.2",
     "ultralytics>=8.3.128",
 ]
 
+[tool.pyright]
+reportIgnoreCommentWithoutRule = false
+typeCheckingMode = "standard"
+
 [dependency-groups]
 dev = [
-    "numpy>=2.2.5",
+    "numpy>=2.2.6",
+    "opencv-python>=4.10",
     "ruff>=0.11.8",
 ]

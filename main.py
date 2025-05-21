@@ -1,12 +1,19 @@
+import datetime
 import logging
 import os
 import sys
-import time
 from logging.handlers import TimedRotatingFileHandler
+from urllib.parse import urljoin
+
+import cv2
+from dotenv import load_dotenv
+from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
+from requests import post
+from systemd.journal import JournalHandler  # pyright: ignore[reportMissingImports]
+
 from person_trackers.yolo_bytetracker import YOLOByteTracker
 
-from picamera2 import Picamera2
-from systemd.journal import JournalHandler
+# TODO: break this file up into smaller modules
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -44,15 +51,41 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 sys.excepthook = handle_exception
 
 
-def ping():
-    # TODO: post detection to server
-    pass
+def debounce(func, time=datetime.timedelta(seconds=15)):
+    last_call = {"time": datetime.datetime.min}
+
+    def wrapper(*args, **kwargs):
+        if datetime.datetime.now() - last_call["time"] >= time:
+            last_call["time"] = datetime.datetime.now()
+            return func(*args, **kwargs)
+
+    return wrapper
 
 
-size = (320, 320)
+load_dotenv()
+core_url = os.getenv("CORE_URL")
+
+
+@debounce
+def ping(count, image):
+    # TODO: don't send an image if there is nobody at the office
+    if core_url is not None:
+        file = {"file": image}
+        post(
+            urljoin(core_url, "office/camera"),
+            json={
+                "timestamp": datetime.datetime.now(datetime.timezone.utc),
+                "count": count,
+            },
+            files=file,
+        )
+
+
+main_size = (4608, 2592)
+downscaled_size = (576, 320)
 picam2 = Picamera2()
 video_config = picam2.create_video_configuration(
-    main={"size": size, "format": "YUV420"},
+    main={"size": main_size, "format": "YUV420"},
     display=None,
     buffer_count=5,
     controls={"FrameRate": 10},
@@ -62,18 +95,13 @@ picam2.configure(video_config)
 picam2.start()
 tracker = YOLOByteTracker()
 
-ping_time = 0
 
 while True:
     frame = picam2.capture_array("main")
-    result = tracker.track_person(frame)
-    count = len(result.ids)
+    downscaled_frame = cv2.resize(frame, downscaled_size, interpolation=cv2.INTER_AREA)
+    result = tracker.track_person(downscaled_frame)
+    count = len(result.ids) if result.ids is not None else 0
+    ping(count, frame)
 
     if count > 0:
         logger.info(f"People detected, count= {count}")
-        if time.time() - ping_time > 60 or ping_time == 0:
-            ping()
-            ping_time = time.time()
-
-    else:
-        ping_time = 0
