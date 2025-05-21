@@ -68,17 +68,24 @@ core_url = os.getenv("CORE_URL")
 
 @debounce
 def ping(count, image):
-    # TODO: don't send an image if there is nobody at the office
     if core_url is not None:
-        file = {"file": image}
-        post(
-            urljoin(core_url, "office/camera"),
-            json={
-                "timestamp": datetime.datetime.now(datetime.timezone.utc),
-                "count": count,
-            },
-            files=file,
-        )
+        if count > 0:
+            post(
+                urljoin(core_url, "office/camera"),
+                data={
+                    "timestamp": datetime.datetime.now(datetime.timezone.utc),
+                    "count": count,
+                },
+                files={"file": image},
+            )
+        else:
+            post(
+                urljoin(core_url, "office/camera"),
+                json={
+                    "timestamp": datetime.datetime.now(datetime.timezone.utc),
+                    "count": count,
+                },
+            )
 
 
 main_size = (4608, 2592)
