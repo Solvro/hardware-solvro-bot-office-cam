@@ -1,9 +1,7 @@
 [Unit]
 Description=Solvro Office Cam Motion Detection Service
-After=multi-user.target
-# If network access becomes necessary in the future, uncomment these:
-# After=network-online.target
-# Wants=network-online.target
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 User=solvrocam
