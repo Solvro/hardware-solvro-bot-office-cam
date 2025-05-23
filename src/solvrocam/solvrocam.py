@@ -4,10 +4,10 @@ import sys
 import cv2
 from dotenv import load_dotenv
 
-from solvro_cam.logs import setup_logging
-from solvro_cam.core import ping
-from solvro_cam.picam import setup_camera
-from solvro_cam.person_trackers.yolo_bytetracker import YOLOByteTracker
+from solvrocam.logs import setup_logging
+from solvrocam.core import ping
+from solvrocam.picam import setup_camera
+from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
 
 
 # Configure logging
