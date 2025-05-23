@@ -1,3 +1,9 @@
+[build-system]
+requires = ["uv_build>=0.7.7,<0.8.0"]
+build-backend = "uv_build"
+[tool.uv.build-backend]
+module-name = "solvrocam"
+
 [project]
 name = "hardware-solvro-bot-office-cam"
 version = "0.1.0"
@@ -5,6 +11,31 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = "~=3.11"
 dependencies = [
-    "numpy>=2.2.5",
+    "lap>=0.5.12",
+    "ncnn>=1.0.20250503",
+    "python-dotenv>=1.1.0",
     "simplejpeg>=1.8.2",
+    "typer>=0.15.4",
+    "ultralytics>=8.3.128",
+    "opencv-python>=4.10",
+    "numpy>=2.2.6",
+	"systemd-python>= 235; sys_platform == 'linux' and platform_machine == 'aarch64'"
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.8",
+]
+
+[tool.uv]
+dependency-metadata = [
+    { name = "systemd-python"},
+]
+
+[project.scripts]
+solvrocam = "solvrocam.cli:app"
+
+[tool.pyright]
+reportIgnoreCommentWithoutRule = false
+typeCheckingMode = "standard"
+
