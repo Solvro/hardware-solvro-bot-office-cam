@@ -19,7 +19,7 @@ dependencies = [
     "ultralytics>=8.3.128",
 ]
 [project.scripts]
-solvro_cam = "solvro_cam.cli:app"
+solvrocam = "solvrocam.cli:app"
 
 [tool.pyright]
 reportIgnoreCommentWithoutRule = false
