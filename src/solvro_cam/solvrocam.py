@@ -3,13 +3,12 @@ import sys
 
 import cv2
 from dotenv import load_dotenv
-from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
 
 from solvro_cam.logs import setup_logging
 from solvro_cam.core import ping
+from solvro_cam.picam import setup_camera
 from solvro_cam.person_trackers.yolo_bytetracker import YOLOByteTracker
 
-# TODO: break this file up into smaller modules
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -29,22 +28,12 @@ sys.excepthook = handle_exception
 
 load_dotenv()
 
-main_size = (4608, 2592)
+picam2 = setup_camera()
 downscaled_size = (576, 320)
-picam2 = Picamera2()
-video_config = picam2.create_video_configuration(
-    main={"size": main_size, "format": "YUV420"},
-    display=None,
-    buffer_count=5,
-    controls={"FrameRate": 10},
-)
-
-picam2.configure(video_config)
-picam2.start()
 tracker = YOLOByteTracker()
 
 
-def main():
+def solvrocam():
     while True:
         frame = picam2.capture_array("main")
         downscaled_frame = cv2.resize(
@@ -59,4 +48,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    solvrocam()
