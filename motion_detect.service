@@ -9,14 +9,11 @@ After=multi-user.target
 User=solvrocam
 Group=solvrocam
 
-WorkingDirectory=/home/solvrocam/hardware-solvro-bot-office-cam
-
-ExecStart=/home/solvrocam/.local/bin/uv run /home/solvrocam/hardware-solvro-bot-office-cam/main.py
+ExecStart=/home/solvrocam/.local/bin/solvrocam
 
 Restart=on-failure
 RestartSec=5s
 
-StandardOutput=journal
 StandardError=journal
 
 [Install]
