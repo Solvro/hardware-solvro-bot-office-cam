@@ -17,7 +17,21 @@ dependencies = [
     "simplejpeg>=1.8.2",
     "typer>=0.15.4",
     "ultralytics>=8.3.128",
+    "opencv-python>=4.10",
+    "numpy>=2.2.6",
+	"systemd-python>= 235; sys_platform == 'linux' and platform_machine == 'aarch64'"
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.11.8",
+]
+
+[tool.uv]
+dependency-metadata = [
+    { name = "systemd-python"},
+]
+
 [project.scripts]
 solvrocam = "solvrocam.cli:app"
 
@@ -25,9 +39,3 @@ solvrocam = "solvrocam.cli:app"
 reportIgnoreCommentWithoutRule = false
 typeCheckingMode = "standard"
 
-[dependency-groups]
-dev = [
-    "numpy>=2.2.6",
-    "opencv-python>=4.10",
-    "ruff>=0.11.8",
-]

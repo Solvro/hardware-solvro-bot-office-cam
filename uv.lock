@@ -6,13 +6,20 @@ resolution-markers = [
     "python_full_version < '3.12' and sys_platform == 'win32'",
     "python_full_version >= '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'",
     "python_full_version >= '3.12' and platform_machine != 'arm64' and sys_platform == 'darwin'",
-    "python_full_version >= '3.12' and platform_machine == 'aarch64' and sys_platform == 'linux'",
-    "(python_full_version >= '3.12' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "python_full_version >= '3.13' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "python_full_version == '3.12.*' and platform_machine == 'aarch64' and sys_platform == 'linux'",
+    "(python_full_version >= '3.13' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version >= '3.13' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
+    "(python_full_version == '3.12.*' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version == '3.12.*' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
     "python_full_version < '3.12' and platform_machine == 'arm64' and sys_platform == 'darwin'",
     "python_full_version < '3.12' and platform_machine != 'arm64' and sys_platform == 'darwin'",
     "python_full_version < '3.12' and platform_machine == 'aarch64' and sys_platform == 'linux'",
     "(python_full_version < '3.12' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.12' and sys_platform != 'darwin' and sys_platform != 'linux' and sys_platform != 'win32')",
 ]
+
+[manifest]
+
+[[manifest.dependency-metadata]]
+name = "systemd-python"
 
 [[package]]
 name = "certifi"
@@ -213,16 +220,17 @@ source = { editable = "." }
 dependencies = [
     { name = "lap" },
     { name = "ncnn" },
+    { name = "numpy" },
+    { name = "opencv-python" },
     { name = "python-dotenv" },
     { name = "simplejpeg" },
+    { name = "systemd-python", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'" },
     { name = "typer" },
     { name = "ultralytics" },
 ]
 
 [package.dev-dependencies]
 dev = [
-    { name = "numpy" },
-    { name = "opencv-python" },
     { name = "ruff" },
 ]
 
@@ -230,18 +238,17 @@ dev = [
 requires-dist = [
     { name = "lap", specifier = ">=0.5.12" },
     { name = "ncnn", specifier = ">=1.0.20250503" },
+    { name = "numpy", specifier = ">=2.2.6" },
+    { name = "opencv-python", specifier = ">=4.10" },
     { name = "python-dotenv", specifier = ">=1.1.0" },
     { name = "simplejpeg", specifier = ">=1.8.2" },
+    { name = "systemd-python", marker = "platform_machine == 'aarch64' and sys_platform == 'linux'", specifier = ">=235" },
     { name = "typer", specifier = ">=0.15.4" },
     { name = "ultralytics", specifier = ">=8.3.128" },
 ]
 
 [package.metadata.requires-dev]
-dev = [
-    { name = "numpy", specifier = ">=2.2.6" },
-    { name = "opencv-python", specifier = ">=4.10" },
-    { name = "ruff", specifier = ">=0.11.8" },
-]
+dev = [{ name = "ruff", specifier = ">=0.11.8" }]
 
 [[package]]
 name = "idna"
@@ -1160,6 +1167,12 @@ sdist = { url = "https://files.pythonhosted.org/packages/83/d3/803453b36afefb7c2
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/09/77d55d46fd61b4a135c444fc97158ef34a095e5681d0a6c10b75bf356191/sympy-1.14.0-py3-none-any.whl", hash = "sha256:e091cc3e99d2141a0ba2847328f5479b05d94a6635cb96148ccb3f34671bd8f5", size = 6299353 },
 ]
+
+[[package]]
+name = "systemd-python"
+version = "235"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/10/9e/ab4458e00367223bda2dd7ccf0849a72235ee3e29b36dce732685d9b7ad9/systemd-python-235.tar.gz", hash = "sha256:4e57f39797fd5d9e2d22b8806a252d7c0106c936039d1e71c8c6b8008e695c0a", size = 61677 }
 
 [[package]]
 name = "torch"
