@@ -1,6 +1,6 @@
 import typer
 
-from solvrocam.solvrocam import solvrocam
+from solvrocam.detection import solvrocam
 
 app = typer.Typer()
 app.command()(solvrocam)

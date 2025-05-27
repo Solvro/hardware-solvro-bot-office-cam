@@ -2,13 +2,11 @@ import logging
 import sys
 
 import cv2
-from dotenv import load_dotenv
 
-from solvrocam.logs import setup_logging
 from solvrocam.core import ping
-from solvrocam.picam import setup_camera
+from solvrocam.logs import setup_logging
 from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
-
+from solvrocam.picam import setup_camera
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -26,8 +24,6 @@ def handle_exception(exc_type, exc_value, exc_traceback):
 sys.excepthook = handle_exception
 
 
-load_dotenv()
-
 picam2 = setup_camera()
 downscaled_size = (576, 320)
 tracker = YOLOByteTracker()
@@ -41,10 +37,8 @@ def solvrocam():
         )
         result = tracker.track_person(downscaled_frame)
         count = len(result.ids) if result.ids is not None else 0
-        ping(count, frame)
-
-        if count > 0:
-            logger.info(f"People detected, count= {count}")
+        ping(count, frame, logger)
+        logger.debug(f"People detected: {count}")
 
 
 if __name__ == "__main__":

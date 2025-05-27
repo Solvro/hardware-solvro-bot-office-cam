@@ -7,12 +7,14 @@ Wants=network-online.target
 User=solvrocam
 Group=solvrocam
 
+EnvironmentFile=/etc/environment
 ExecStart=/home/solvrocam/.local/bin/solvrocam
 
 Restart=on-failure
 RestartSec=5s
 
-StandardError=journal
+StandardOutput=null
+StandardError=null
 
 [Install]
 WantedBy=multi-user.target
