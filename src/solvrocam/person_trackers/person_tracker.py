@@ -8,7 +8,7 @@ class DetectionResult:
     boxes: np.ndarray
     ids: np.ndarray | None = None
     confidences: np.ndarray | None = None
-    processed_frame: np.ndarray| None = None
+    processed_frame: np.ndarray | None = None
 
 
 class PersonTracker(ABC):

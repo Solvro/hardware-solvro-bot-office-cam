@@ -1,7 +1,7 @@
 from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
 
 main_size = (4608, 2592)
-main_format = "YUV420"
+main_format = "RGB888"
 framerate = 10
 
 

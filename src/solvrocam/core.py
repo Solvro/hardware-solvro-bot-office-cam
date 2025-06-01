@@ -2,23 +2,25 @@ import datetime
 import logging
 import os
 from urllib.parse import urljoin
+from PIL import Image
 
-import cv2
-import numpy as np
 from requests import post, Response
 
 core_url = os.getenv("CORE_URL")
 
 
-def debounce(func, time=datetime.timedelta(seconds=15)):
-    last_call = {"time": datetime.datetime.min}
+def debounce(time: datetime.timedelta):
+    def decorate(func):
+        last_call = {"time": datetime.datetime.min}
 
-    def wrapper(*args, **kwargs):
-        if datetime.datetime.now() - last_call["time"] >= time:
-            last_call["time"] = datetime.datetime.now()
-            return func(*args, **kwargs)
+        def wrapper(*args, **kwargs):
+            if datetime.datetime.now() - last_call["time"] >= time:
+                last_call["time"] = datetime.datetime.now()
+                return func(*args, **kwargs)
 
-    return wrapper
+        return wrapper
+
+    return decorate
 
 
 def print_response(res: Response) -> str:
@@ -29,8 +31,8 @@ def print_response(res: Response) -> str:
     )
 
 
-@debounce
-def ping(count: int, image: np.ndarray, logger: logging.Logger):
+@debounce(datetime.timedelta(seconds=15))
+def ping(count: int, image: Image.Image, logger: logging.Logger):
     if core_url is not None:
         try:
             if count > 0:
@@ -47,7 +49,7 @@ def ping(count: int, image: np.ndarray, logger: logging.Logger):
                             files={
                                 "file": (
                                     "image.png",
-                                    cv2.imencode(".png", image)[1].tobytes(),
+                                    image.tobytes(),
                                     "image/png",
                                 )
                             },
@@ -70,3 +72,5 @@ def ping(count: int, image: np.ndarray, logger: logging.Logger):
                 )
         except Exception as e:
             logger.error(f"Failed to ping core: {e}")
+    else:
+        logger.error("CORE_URL environment variable is not set. Cannot ping core.")
