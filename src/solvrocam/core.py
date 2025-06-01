@@ -47,9 +47,9 @@ def ping(count: int, image: bytes, logger: logging.Logger):
                             },
                             files={
                                 "file": (
-                                    "image.webp",
+                                    "image.jpeg",
                                     image,
-                                    "image/webp",
+                                    "image/jpeg",
                                 )
                             },
                         )
