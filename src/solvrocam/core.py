@@ -2,9 +2,8 @@ import datetime
 import logging
 import os
 from urllib.parse import urljoin
-from PIL import Image
 
-from requests import post, Response
+from requests import Response, post
 
 core_url = os.getenv("CORE_URL")
 
@@ -32,7 +31,7 @@ def print_response(res: Response) -> str:
 
 
 @debounce(datetime.timedelta(seconds=15))
-def ping(count: int, image: Image.Image, logger: logging.Logger):
+def ping(count: int, image: bytes, logger: logging.Logger):
     if core_url is not None:
         try:
             if count > 0:
@@ -48,9 +47,9 @@ def ping(count: int, image: Image.Image, logger: logging.Logger):
                             },
                             files={
                                 "file": (
-                                    "image.png",
-                                    image.tobytes(),
-                                    "image/png",
+                                    "image.webp",
+                                    image,
+                                    "image/webp",
                                 )
                             },
                         )

@@ -1,5 +1,6 @@
 import logging
 import sys
+from io import BytesIO
 
 from solvrocam.core import ping
 from solvrocam.logs import setup_logging
@@ -31,12 +32,15 @@ def detect():
     while True:
         buf = picam2.capture_buffer("main")
         frame = picam2.helpers.make_array(buf, picam2.camera_configuration()["main"])
-        img = picam2.helpers.make_image(buf, picam2.camera_configuration()["main"])
+        img = BytesIO()
+        picam2.helpers.make_image(buf, picam2.camera_configuration()["main"]).save(
+            img, format="webp"
+        )
         result = process_frame(frame, tracker)
         count = len(result.ids) if result.ids is not None else 0
         logger.debug(f"People detected: {count}")
 
-        ping(count, img, logger)
+        ping(count, img.getvalue(), logger)
 
 
 if __name__ == "__main__":
