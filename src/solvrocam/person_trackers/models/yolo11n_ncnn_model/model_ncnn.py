@@ -2,10 +2,9 @@ import numpy as np
 import ncnn
 import torch
 
-
 def test_inference():
     torch.manual_seed(0)
-    in0 = torch.rand(1, 3, 576, 320, dtype=torch.float)
+    in0 = torch.rand(1, 3, 864, 480, dtype=torch.float)
     out = []
 
     with ncnn.Net() as net:
@@ -22,7 +21,6 @@ def test_inference():
         return out[0]
     else:
         return tuple(out)
-
 
 if __name__ == "__main__":
     print(test_inference())
