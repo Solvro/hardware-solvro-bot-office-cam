@@ -3,6 +3,7 @@ import logging
 import os
 from urllib.parse import urljoin
 
+import numpy as np
 from requests import Response, post
 
 core_url = os.getenv("CORE_URL")
@@ -31,8 +32,18 @@ def print_response(res: Response) -> str:
 
 
 @debounce(datetime.timedelta(seconds=15))
-def ping(count: int, image: bytes, logger: logging.Logger):
+def ping(counts: list[int], image: bytes, logger: logging.Logger):
     if core_url is not None:
+        count = 0
+
+        # This removes false negatives where there would be detections between pings, but the frame that is sent doesn't have any.
+        # it also improves count accuracy
+        detections = np.array([num for num in counts if num != 0])
+        if detections.size > 0:
+            count = np.median(detections).astype(int)
+        # Once the ping is called, we clear this
+        counts.clear()
+
         try:
             if count > 0:
                 logger.info(

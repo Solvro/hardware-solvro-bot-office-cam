@@ -1,6 +1,7 @@
 import logging
 import sys
 from io import BytesIO
+
 import cv2
 
 from solvrocam.core import ping
@@ -30,14 +31,18 @@ tracker = YOLOByteTracker()
 
 
 def detect():
+    counts: list[int] = []
+
     while True:
         frame = picam2.capture_array("main")
         img = BytesIO(cv2.imencode(".jpeg", frame)[1].tobytes())
         result = process_frame(frame, tracker)
+
         count = len(result.ids) if result.ids is not None else 0
+        counts.append(count)
         logger.debug(f"People detected: {count}")
 
-        ping(count, img.getvalue(), logger)
+        ping(counts, img.getvalue(), logger)
 
 
 if __name__ == "__main__":
