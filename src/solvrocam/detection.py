@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
-from urllib.parse import urljoin, unquote_plus
+from urllib.parse import urljoin
 
 import cv2
 import numpy as np

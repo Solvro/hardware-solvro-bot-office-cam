@@ -110,6 +110,8 @@ def preview(
     except Exception as e:
         typer.echo(f"Error sending output: {e}", err=True)
         raise typer.Exit(code=1)
+    finally:
+        sock.close()
 
 
 if __name__ == "__main__":

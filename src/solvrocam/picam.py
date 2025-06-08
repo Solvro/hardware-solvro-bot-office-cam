@@ -13,7 +13,7 @@ from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
 from solvrocam.preview import CV2Preview  # pyright: ignore[reportMissingImports]
 
 
-def setup() -> Picamera2:
+def setup(logger: logging.Logger) -> Picamera2:
     picam2 = Picamera2()
     main_size = (4608, 2592)
     main_format = "RGB888"
@@ -40,7 +40,9 @@ def setup() -> Picamera2:
         try:
             picam2.start_encoder(encoder)
         except Exception:
-            pass
+            logger.error("Failed to start RTMP encoder")
+    else:
+        logger.warning("RTMP_SERVER environment variable not set, skipping RTMP stream")
 
     return picam2
 
@@ -66,7 +68,7 @@ def camera():
 
     solvrocam = Solvrocam(CV2Preview(logger), YOLOByteTracker(), logger)
 
-    picam2 = setup()
+    picam2 = setup(logger)
 
     while True:
         frame = picam2.capture_array("main")
