@@ -17,6 +17,7 @@ def setup(logger: logging.Logger) -> Picamera2:
     picam2 = Picamera2()
     main_size = (4608, 2592)
     main_format = "RGB888"
+    # This resolution MUST be at most 1920x1080 or else the encoder fails
     lores_size = (1920, 1080)
     # lores stream MUST be YUV420
     lores_format = "YUV420"
@@ -36,7 +37,7 @@ def setup(logger: logging.Logger) -> Picamera2:
     rtmp_server = os.getenv("RTMP_SERVER")
     if rtmp_server is not None:
         encoder = H264Encoder()
-        encoder.output = PyavOutput(rtmp_server, format="h264")
+        encoder.output = PyavOutput(rtmp_server, format="flv")
         try:
             picam2.start_encoder(encoder)
         except Exception as e:
