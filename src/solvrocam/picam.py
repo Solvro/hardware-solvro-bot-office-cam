@@ -17,7 +17,7 @@ def setup(logger: logging.Logger) -> Picamera2:
     picam2 = Picamera2()
     main_size = (4608, 2592)
     main_format = "RGB888"
-    lores_size = (2304, 1296)
+    lores_size = (1920, 1080)
     # lores stream MUST be YUV420
     lores_format = "YUV420"
     framerate = 30
