@@ -1,16 +1,20 @@
-import platform
 import typer
 
+from solvrocam.file import app as file
+from solvrocam.preview import app as preview
 
 app = typer.Typer()
-if platform.release().find("rpi") != -1:
-    from solvrocam.detection import detect
 
-    app.command()(detect)
-else:
-    from solvrocam.debug import debug
+try:
+    from solvrocam.picam import app as camera
 
-    app.command()(debug)
+    app.add_typer(camera)
+except ImportError:
+    pass
+
+app.add_typer(file)
+app.add_typer(preview)
+
 
 if __name__ == "__main__":
     app()
