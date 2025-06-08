@@ -1,19 +1,19 @@
 import typer
 
-from solvrocam.file import app as file_app
-from solvrocam.preview import app as preview_app
+from solvrocam.file import app as file
+from solvrocam.preview import app as preview
 
 app = typer.Typer()
 
 try:
-    from solvrocam.picam import app as camera_app
+    from solvrocam.picam import app as camera
 
-    app.add_typer(camera_app, name="camera")
+    app.add_typer(camera)
 except ImportError:
     pass
 
-app.add_typer(file_app, name="file")
-app.add_typer(preview_app, name="preview")
+app.add_typer(file)
+app.add_typer(preview)
 
 
 if __name__ == "__main__":
