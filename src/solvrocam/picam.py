@@ -36,11 +36,11 @@ def setup(logger: logging.Logger) -> Picamera2:
     rtmp_server = os.getenv("RTMP_SERVER")
     if rtmp_server is not None:
         encoder = H264Encoder()
-        encoder.output = PyavOutput(rtmp_server)
+        encoder.output = PyavOutput(rtmp_server, format="h264")
         try:
             picam2.start_encoder(encoder)
-        except Exception:
-            logger.error("Failed to start RTMP encoder")
+        except Exception as e:
+            logger.exception(f"Failed to start RTMP encoder: {e}")
     else:
         logger.warning("RTMP_SERVER environment variable not set, skipping RTMP stream")
 
