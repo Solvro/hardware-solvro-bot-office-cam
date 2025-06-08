@@ -1,19 +1,82 @@
+import logging
+import os
+import sys
+
+import typer
 from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
+from picamera2.encoders import H264Encoder  # pyright: ignore[reportMissingImports]
+from picamera2.outputs import PyavOutput  # pyright: ignore[reportMissingImports]
 
-main_size = (4608, 2592)
-main_format = "RGB888"
-framerate = 10
+from solvrocam.detection import Solvrocam
+from solvrocam.logs import setup_logging
+from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
+from solvrocam.preview import CV2Preview  # pyright: ignore[reportMissingImports]
 
 
-def setup_camera() -> Picamera2:
+def setup(logger: logging.Logger) -> Picamera2:
     picam2 = Picamera2()
+    main_size = (4608, 2592)
+    main_format = "RGB888"
+    # This resolution MUST be at most 1920x1080 or else the encoder fails
+    lores_size = (1920, 1080)
+    # lores stream MUST be YUV420
+    lores_format = "YUV420"
+    framerate = 30
     video_config = picam2.create_video_configuration(
         main={"size": main_size, "format": main_format},
+        lores={"size": lores_size, "format": lores_format},
         display=None,
+        encode="lores",
         buffer_count=5,
         controls={"FrameRate": framerate},
     )
 
     picam2.configure(video_config)
     picam2.start()
+
+    rtmp_server = os.getenv("RTMP_SERVER")
+    if rtmp_server is not None:
+        encoder = H264Encoder(repeat=True)
+        encoder.output = PyavOutput(rtmp_server, format="flv")
+        try:
+            picam2.start_encoder(encoder)
+        except Exception as e:
+            logger.exception(f"Failed to start RTMP encoder: {e}")
+    else:
+        logger.warning("RTMP_SERVER environment variable not set, skipping RTMP stream")
+
     return picam2
+
+
+app = typer.Typer()
+
+
+@app.command()
+def camera():
+    logger = logging.getLogger(__name__)
+    setup_logging(logger)
+
+    def handle_exception(exc_type, exc_value, exc_traceback):
+        if issubclass(exc_type, KeyboardInterrupt):
+            sys.__excepthook__(exc_type, exc_value, exc_traceback)
+            return
+
+        logger.critical(
+            "Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback)
+        )
+
+    sys.excepthook = handle_exception
+
+    solvrocam = Solvrocam(CV2Preview(logger), YOLOByteTracker(), logger)
+
+    picam2 = setup(logger)
+
+    while True:
+        frame = picam2.capture_array("main")
+        solvrocam.process_frame(frame)
+        solvrocam.show()
+        solvrocam.ping()
+
+
+if __name__ == "__main__":
+    camera()
