@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime, timedelta, timezone
 from io import BytesIO
-from urllib.parse import urljoin
+from urllib.parse import urljoin, unquote_plus
 
 import cv2
 import numpy as np
@@ -21,7 +21,7 @@ def print_response(res: Response) -> str:
     return "HTTP/1.1 {status_code}\n{headers}\n{body}".format(
         status_code=res.status_code,
         headers="\n".join("{}: {}".format(k, v) for k, v in res.headers.items()),
-        body=res.request.body if res.request.body != "b''" else "",
+        body=res.text,
     )
 
 
@@ -85,7 +85,7 @@ class Solvrocam:
             # it also improves count accuracy
             detections = np.array([num for num in self.counts if num != 0])
             if detections.size > 0:
-                count = np.median(detections).astype(int)
+                count = int(np.median(detections))
             # Once the ping is called, we clear this
             self.counts.clear()
 
@@ -106,7 +106,10 @@ class Solvrocam:
                         )
                     }
                 prepped = session.prepare_request(req)
-                self._logger.info("Pinging core:\n", prepped.body)
+
+                content = data
+                content.update({"file": count > 0})
+                self._logger.info(f"Pinging core:\n{content}\n")
                 try:
                     res = session.send(prepped)
                     self._logger.info(print_response(res))
@@ -127,6 +130,3 @@ class Solvrocam:
 
 
 # TODO: socket listener for preview output changes
-# TODO: cli fixes
-# TODO: picam lores output
-# TODO: refactor
