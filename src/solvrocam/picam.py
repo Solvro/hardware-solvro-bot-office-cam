@@ -36,7 +36,7 @@ def setup(logger: logging.Logger) -> Picamera2:
 
     rtmp_server = os.getenv("RTMP_SERVER")
     if rtmp_server is not None:
-        encoder = H264Encoder()
+        encoder = H264Encoder(repeat=True)
         encoder.output = PyavOutput(rtmp_server, format="flv")
         try:
             picam2.start_encoder(encoder)
