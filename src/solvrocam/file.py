@@ -28,11 +28,12 @@ def file(
     output: Annotated[
         Output,
         typer.Option(
-            default=Output.ANNOTATED,
+            "--output",
+            "-o",
             case_sensitive=False,
             help="Processing stage for the preview to output",
         ),
-    ],
+    ] = Output.ANNOTATED,
 ):
     logger = logging.getLogger(__name__)
     setup_logging(logger)

@@ -89,6 +89,8 @@ def preview(
     output: Annotated[
         Output,
         typer.Option(
+            "--output",
+            "-o",
             prompt=True,
             case_sensitive=False,
             help="Processing stage for the preview to output",
