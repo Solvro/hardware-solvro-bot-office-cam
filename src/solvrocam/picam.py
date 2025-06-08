@@ -18,7 +18,8 @@ def setup() -> Picamera2:
     main_size = (4608, 2592)
     main_format = "RGB888"
     lores_size = (2304, 1296)
-    lores_format = "RGB888"
+    # lores stream MUST be YUV420
+    lores_format = "YUV420"
     framerate = 30
     video_config = picam2.create_video_configuration(
         main={"size": main_size, "format": main_format},
