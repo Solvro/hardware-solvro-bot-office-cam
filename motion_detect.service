@@ -8,7 +8,7 @@ User=solvrocam
 Group=solvrocam
 
 EnvironmentFile=/etc/environment
-ExecStart=/home/solvrocam/.local/bin/solvrocam
+ExecStart=/home/solvrocam/.local/bin/solvrocam camera
 
 Restart=on-failure
 RestartSec=5s
