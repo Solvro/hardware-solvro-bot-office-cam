@@ -1,12 +1,9 @@
 import logging
-import math
 import sys
 
 import typer
 
-from solvrocam.detection import Solvrocam, print_response
 from solvrocam.logs import setup_logging
-from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
 from solvrocam.preview import CV2Preview  # pyright: ignore[reportMissingImports]
 
 
@@ -29,6 +26,9 @@ def camera():
 
     sys.excepthook = handle_exception
 
+    # lazy import to improve cli responsiveness, these imports take 1s
+    from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
+    from solvrocam.detection import Solvrocam
     solvrocam = Solvrocam(CV2Preview(logger), YOLOByteTracker(), logger)
     solvrocam.start_camera()
 

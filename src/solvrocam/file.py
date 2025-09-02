@@ -6,9 +6,7 @@ import numpy as np
 import typer
 from typing_extensions import Annotated
 
-from solvrocam.detection import Solvrocam
 from solvrocam.logs import setup_logging
-from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
 from solvrocam.preview import CV2Preview, Output
 
 app = typer.Typer()
@@ -38,6 +36,9 @@ def file(
     logger = logging.getLogger(__name__)
     setup_logging(logger)
 
+    # lazy import to improve cli responsiveness, these imports take 1s
+    from solvrocam.detection import Solvrocam
+    from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
     solvrocam = Solvrocam(CV2Preview(logger), YOLOByteTracker(), logger)
     solvrocam.preview_output = output
 
