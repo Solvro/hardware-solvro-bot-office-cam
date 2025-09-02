@@ -11,7 +11,6 @@ uv run solvrocam file <path/to/file>
 To stop seeing ultralytics logs in terminal output:
 
 ```bash
-To disable Ultralytics logs:
 uv run solvrocam file <path/to/file> 1>/dev/null
 ```
 
