@@ -11,9 +11,13 @@ from urllib.parse import urljoin
 import cv2
 import numpy as np
 import numpy.typing as npt
-from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
-from picamera2.encoders import H264Encoder  # pyright: ignore[reportMissingImports]
-from picamera2.outputs import PyavOutput  # pyright: ignore[reportMissingImports]
+
+try:
+    from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
+    from picamera2.encoders import H264Encoder  # pyright: ignore[reportMissingImports]
+    from picamera2.outputs import PyavOutput  # pyright: ignore[reportMissingImports]
+except ModuleNotFoundError:
+    pass
 from requests import Request, Response, Session
 
 from solvrocam.debounce import debounce
