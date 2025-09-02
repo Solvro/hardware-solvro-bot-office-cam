@@ -20,7 +20,7 @@ class YOLOByteTracker(PersonTracker):
                 (Path(__file__).parent / "models" / "bytetrack.yaml").resolve()
             )
 
-        self.model = YOLO(detection_model, task="detect")
+        self.model = YOLO(detection_model, task="detect", verbose=False)
         self.tracking_config = tracking_method
         self.person_class_id = 0
 
