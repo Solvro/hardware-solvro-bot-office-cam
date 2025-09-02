@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from logging.handlers import TimedRotatingFileHandler
 
 journal_handler: logging.Handler | None = None
@@ -31,7 +32,9 @@ if os.path.exists("/home/solvrocam/"):
 # Configure logging
 def setup_logging(logger: logging.Logger) -> None:
     logger.propagate = False
-    logger.setLevel(logging.DEBUG)
+    level = os.getenv("LOG_LEVEL", "DEBUG").upper()
+    logger.setLevel(level=getattr(logging, level, logging.DEBUG))
+    logger.addHandler(logging.StreamHandler(sys.stderr))
 
     if journal_handler is not None:
         logger.addHandler(journal_handler)
