@@ -185,6 +185,7 @@ def main(
     if ctx.invoked_subcommand is None:
         if stage:
             _set_stage(stage)
+            typer.echo(f"Stage set: {stage}")
         else:
             typer.echo("Error: Missing option '--stage' / '-s'.", err=True)
             raise typer.Exit(code=1)
