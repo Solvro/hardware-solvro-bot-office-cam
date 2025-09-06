@@ -16,6 +16,7 @@ try:
     from picamera2 import Picamera2  # pyright: ignore[reportMissingImports]
     from picamera2.encoders import H264Encoder  # pyright: ignore[reportMissingImports]
     from picamera2.outputs import PyavOutput  # pyright: ignore[reportMissingImports]
+    from libcamera import Transform  # pyright: ignore[reportMissingImports]
 except ModuleNotFoundError:
     pass
 from requests import Request, Response, Session
@@ -85,6 +86,7 @@ class Solvrocam:
             main={"size": main_size, "format": main_format},
             lores={"size": lores_size, "format": lores_format},
             display=None,
+            transform=Transform(hflip=True, vflip=True),
             encode="lores",
             buffer_count=5,
             controls={"FrameRate": framerate},
