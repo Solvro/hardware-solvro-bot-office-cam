@@ -154,7 +154,7 @@ def _set_stage(stage: Output):
     PORT = int(getenv("PREVIEW_PORT", "6900"))
 
     try:
-        with socket.create_connection(("127.0.0.1", PORT), timeout=10) as sock:
+        with socket.create_connection(("127.0.0.1", PORT), timeout=30) as sock:
             sock.sendall(stage.encode("utf-8"))
             response = sock.recv(1024)
             if response != b"OK":
@@ -213,15 +213,6 @@ def _recv_all(sock, n):
 
 @app.command()
 def start(
-    stage: Annotated[
-        Output | None,
-        typer.Option(
-            "--stage",
-            "-s",
-            case_sensitive=False,
-            help="Set the processing stage for the preview to output.",
-        ),
-    ] = None,
     output: Annotated[
         Path | None,
         typer.Option(
@@ -235,8 +226,6 @@ def start(
     """
     Start the preview window.
     """
-    if stage:
-        _set_stage(stage)
 
     PORT = int(getenv("PREVIEW_STREAM_PORT", "6901"))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -288,7 +277,6 @@ def start(
     finally:
         if video_writer:
             video_writer.release()
-        _set_stage(Output.OFF)
         cv2.destroyAllWindows()
         sock.close()
         typer.echo("Preview stopped")
