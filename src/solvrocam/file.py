@@ -39,6 +39,7 @@ def file(
     # lazy import to improve cli responsiveness, these imports take 1s
     from solvrocam.detection import Solvrocam
     from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
+
     solvrocam = Solvrocam(CV2Preview(logger), YOLOByteTracker(), logger)
     solvrocam.preview_output = output
 

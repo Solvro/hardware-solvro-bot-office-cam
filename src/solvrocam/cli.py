@@ -13,7 +13,7 @@ except ImportError:
     pass
 
 app.add_typer(file)
-app.add_typer(preview)
+app.add_typer(preview, name="preview")
 
 
 if __name__ == "__main__":
