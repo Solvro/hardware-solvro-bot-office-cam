@@ -140,8 +140,10 @@ class CV2Preview(Preview):
                         new_output = Output(data.decode("utf-8").strip())
                         self.output = new_output
                         self._logger.info(f"Set preview output to {new_output}")
+                        conn.sendall(b"OK")
                     except ValueError:
                         self._logger.warning(f"Invalid output value received: {data}")
+                        conn.sendall(b"INVALID")
         except Exception as e:
             self._logger.error(f"Socket listener error: {e}", exc_info=True)
         finally:
@@ -152,14 +154,22 @@ def _set_stage(stage: Output):
     PORT = int(getenv("PREVIEW_PORT", "6900"))
 
     try:
-        with socket.create_connection(("127.0.0.1", PORT)) as sock:
-            try:
-                sock.sendall(stage.encode("utf-8"))
-            except Exception as e:
-                typer.echo(f"Error sending stage: {e}", err=True)
+        with socket.create_connection(("127.0.0.1", PORT), timeout=5) as sock:
+            sock.sendall(stage.encode("utf-8"))
+            response = sock.recv(1024)
+            if response != b"OK":
+                typer.echo(f"Error setting stage: unexpected response {response}", err=True)
                 raise typer.Exit(code=1)
+            typer.echo(f"Stage set: {stage}")
+
+    except socket.timeout:
+        typer.echo("Error setting stage: timeout", err=True)
+        raise typer.Exit(code=1)
     except OSError as e:
         typer.echo(f"Error connecting to preview server: {e}", err=True)
+        raise typer.Exit(code=1)
+    except Exception as e:
+        typer.echo(f"Error sending stage: {e}", err=True)
         raise typer.Exit(code=1)
 
 
@@ -185,7 +195,6 @@ def main(
     if ctx.invoked_subcommand is None:
         if stage:
             _set_stage(stage)
-            typer.echo(f"Stage set: {stage}")
         else:
             typer.echo("Error: Missing option '--stage' / '-s'.", err=True)
             raise typer.Exit(code=1)
