@@ -154,7 +154,7 @@ def _set_stage(stage: Output):
     PORT = int(getenv("PREVIEW_PORT", "6900"))
 
     try:
-        with socket.create_connection(("127.0.0.1", PORT), timeout=5) as sock:
+        with socket.create_connection(("127.0.0.1", PORT), timeout=10) as sock:
             sock.sendall(stage.encode("utf-8"))
             response = sock.recv(1024)
             if response != b"OK":
