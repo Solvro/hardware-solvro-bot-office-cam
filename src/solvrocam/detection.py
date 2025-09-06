@@ -159,7 +159,7 @@ class Solvrocam:
     def _restart_camera(self) -> None:
         self._logger.warning("Restarting camera")
         self.stop_camera()
-        sys.exit(0)
+        sys.exit(1)
 
     def _watchdog(self, timeout: int = 15) -> None:
         """Monitors the processing thread and restarts the camera if it becomes unresponsive."""
