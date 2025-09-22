@@ -119,11 +119,8 @@ class Solvrocam:
         self.running = False
         self._preview.output = Output.OFF
 
-        # Join all threads to ensure clean shutdown
         if self.rtmp_thread and self.rtmp_thread.is_alive():
             self.rtmp_thread.join()
-        if self.watchdog_thread and self.watchdog_thread.is_alive():
-            self.watchdog_thread.join()
         if self.processing_thread and self.processing_thread.is_alive():
             self.processing_thread.join()
 
@@ -173,7 +170,6 @@ class Solvrocam:
                     f"Watchdog: No activity for {timeout} seconds. Triggering restart."
                 )
                 self._restart_camera()
-                # The restart creates a new watchdog, so this one can exit.
                 return
             time.sleep(5)
 
