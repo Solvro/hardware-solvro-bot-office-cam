@@ -93,6 +93,9 @@ class CV2Preview(Preview):
     def _frame_sender_worker(self):
         PORT = self._stream_port
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(
+            socket.SOL_SOCKET, socket.SO_SNDBUF, socket.SO_VM_SOCKETS_BUFFER_MAX_SIZE
+        )
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         try:
             sock.bind(("127.0.0.1", PORT))
@@ -158,7 +161,9 @@ def _set_stage(stage: Output):
             sock.sendall(stage.encode("utf-8"))
             response = sock.recv(1024)
             if response != b"OK":
-                typer.echo(f"Error setting stage: unexpected response {response}", err=True)
+                typer.echo(
+                    f"Error setting stage: unexpected response {response}", err=True
+                )
                 raise typer.Exit(code=1)
             typer.echo(f"Stage set: {stage}")
 
@@ -200,7 +205,7 @@ def main(
             raise typer.Exit(code=1)
 
 
-def _recv_all(sock, n):
+def _recv_all(sock: socket.socket, n):
     """Helper function to receive n bytes from a socket."""
     data = bytearray()
     while len(data) < n:
@@ -229,6 +234,9 @@ def start(
 
     PORT = int(getenv("PREVIEW_STREAM_PORT", "6901"))
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.setsockopt(
+        socket.SOL_SOCKET, socket.SO_RCVBUF, socket.SO_VM_SOCKETS_BUFFER_MAX_SIZE
+    )
     header_size = struct.calcsize(">III")
     video_writer = None
 
