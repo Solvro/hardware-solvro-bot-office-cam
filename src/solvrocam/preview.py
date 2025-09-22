@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 from enum import StrEnum, auto, unique
 from os import getenv
 from pathlib import Path
-from queue import Empty, Queue
+from queue import Empty, Full, Queue
 from threading import Thread, current_thread
 
 import cv2
@@ -86,7 +86,7 @@ class CV2Preview(Preview):
             try:
                 # Non-blocking put
                 self._frame_queue.put_nowait(frame)
-            except Exception:
+            except Full:
                 # Queue is full, drop frame
                 pass
 
