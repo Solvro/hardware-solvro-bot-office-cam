@@ -182,7 +182,11 @@ class Solvrocam:
         if not self.picam2:
             return
         try:
-            frame = self.picam2.capture_array(array_name)
+            # capture async so that if the camera crashes the thread doesn't hang waiting
+            # async allows to wait with a timeout
+            job = self.picam2.capture_array(array_name, wait=False)
+            frame = self.picam2.wait(job, timeout=0.3)
+
             if not self.frame_queue.full():
                 self.frame_queue.put(frame)
         except Exception as e:
