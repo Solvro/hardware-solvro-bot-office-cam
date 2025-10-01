@@ -62,6 +62,7 @@ class Solvrocam:
 
         self.picam2: Picamera2 | None = None
         self.running = False
+        self._needs_restart = False
 
         self.activity_lock = threading.Lock()
         self.last_activity_timestamp = time.time()
@@ -129,6 +130,7 @@ class Solvrocam:
                 self.picam2.stop_recording()
             self.picam2.stop()
         self._logger.info("Camera system stopped.")
+        sys.exit(1)
 
     def _rtmp_connection_thread(self) -> None:
         rtmp_server = os.getenv("RTMP_SERVER")
@@ -157,8 +159,7 @@ class Solvrocam:
 
     def _restart_camera(self) -> None:
         self._logger.warning("Restarting camera")
-        self.stop_camera()
-        sys.exit(1)
+        self._needs_restart = True
 
     def _watchdog(self, timeout: int = 15) -> None:
         """Monitors the processing thread and restarts the camera if it becomes unresponsive."""
@@ -181,6 +182,8 @@ class Solvrocam:
     def capture_and_queue(self, array_name: str) -> None:
         if not self.picam2:
             return
+        if self._needs_restart:
+            self.stop_camera()
         try:
             # capture async so that if the camera crashes the thread doesn't hang waiting
             # async allows to wait with a timeout
