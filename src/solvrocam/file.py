@@ -1,5 +1,7 @@
 import logging
 import os
+import subprocess
+import sys
 
 import cv2
 import numpy as np
@@ -39,33 +41,41 @@ def file(
     # lazy import to improve cli responsiveness, these imports take 1s
     from solvrocam.detection import Solvrocam
     from solvrocam.person_trackers.yolo_bytetracker import YOLOByteTracker
-    solvrocam = Solvrocam(CV2Preview(logger), YOLOByteTracker(), logger)
-    solvrocam.preview_output = output
 
-    ext = os.path.splitext(file_path)[1].lower()
-    if ext in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]:
-        frame = cv2.imread(file_path)
-        if frame is None:
-            logger.error(f"Failed to read image: {file_path}")
-            raise typer.Exit(code=1)
+    preview_process = subprocess.Popen(
+        [sys.executable, "-m", "solvrocam", "preview", "start"]
+    )
 
-        solvrocam.process_frame(frame.astype(np.uint8))
-        while solvrocam.preview_output != Output.OFF:
-            solvrocam.show()
+    try:
+        solvrocam = Solvrocam(CV2Preview(logger), YOLOByteTracker(), logger)
+        solvrocam.preview_output = output
 
-    else:
-        cap = cv2.VideoCapture(file_path)
-        if not cap.isOpened():
-            logger.error(f"Failed to open video: {file_path}")
-            raise typer.Exit(code=1)
+        ext = os.path.splitext(file_path)[1].lower()
+        if ext in [".jpg", ".jpeg", ".png", ".bmp", ".tiff"]:
+            frame = cv2.imread(file_path)
+            if frame is None:
+                logger.error(f"Failed to read image: {file_path}")
+                raise typer.Exit(code=1)
 
-        while solvrocam.preview_output != Output.OFF:
-            ret, frame = cap.read()
-            if not ret:
-                break
             solvrocam.process_frame(frame.astype(np.uint8))
-            solvrocam.show()
-        cap.release()
+            while solvrocam.preview_output != Output.OFF:
+                solvrocam.show()
+
+        else:
+            cap = cv2.VideoCapture(file_path)
+            if not cap.isOpened():
+                logger.error(f"Failed to open video: {file_path}")
+                raise typer.Exit(code=1)
+
+            while solvrocam.preview_output != Output.OFF:
+                ret, frame = cap.read()
+                if not ret:
+                    break
+                solvrocam.process_frame(frame.astype(np.uint8))
+                solvrocam.show()
+            cap.release()
+    finally:
+        preview_process.terminate()
 
 
 if __name__ == "__main__":

@@ -62,6 +62,7 @@ class Solvrocam:
 
         self.picam2: Picamera2 | None = None
         self.running = False
+        self._needs_restart = False
 
         self.activity_lock = threading.Lock()
         self.last_activity_timestamp = time.time()
@@ -119,11 +120,8 @@ class Solvrocam:
         self.running = False
         self._preview.output = Output.OFF
 
-        # Join all threads to ensure clean shutdown
         if self.rtmp_thread and self.rtmp_thread.is_alive():
             self.rtmp_thread.join()
-        if self.watchdog_thread and self.watchdog_thread.is_alive():
-            self.watchdog_thread.join()
         if self.processing_thread and self.processing_thread.is_alive():
             self.processing_thread.join()
 
@@ -132,6 +130,7 @@ class Solvrocam:
                 self.picam2.stop_recording()
             self.picam2.stop()
         self._logger.info("Camera system stopped.")
+        sys.exit(1)
 
     def _rtmp_connection_thread(self) -> None:
         rtmp_server = os.getenv("RTMP_SERVER")
@@ -160,8 +159,7 @@ class Solvrocam:
 
     def _restart_camera(self) -> None:
         self._logger.warning("Restarting camera")
-        self.stop_camera()
-        sys.exit(1)
+        self._needs_restart = True
 
     def _watchdog(self, timeout: int = 15) -> None:
         """Monitors the processing thread and restarts the camera if it becomes unresponsive."""
@@ -173,7 +171,6 @@ class Solvrocam:
                     f"Watchdog: No activity for {timeout} seconds. Triggering restart."
                 )
                 self._restart_camera()
-                # The restart creates a new watchdog, so this one can exit.
                 return
             time.sleep(5)
 
@@ -185,8 +182,14 @@ class Solvrocam:
     def capture_and_queue(self, array_name: str) -> None:
         if not self.picam2:
             return
+        if self._needs_restart:
+            self.stop_camera()
         try:
-            frame = self.picam2.capture_array(array_name)
+            # capture async so that if the camera crashes the thread doesn't hang waiting
+            # async allows to wait with a timeout
+            job = self.picam2.capture_array(array_name, wait=False)
+            frame = self.picam2.wait(job, timeout=0.3)
+
             if not self.frame_queue.full():
                 self.frame_queue.put(frame)
         except Exception as e:
